@@ -1,0 +1,257 @@
+<!--
+  This is a self-contained HTML file for a responsive 3D "Cards Stack Slider" carousel.
+  It uses Tailwind CSS for styling and JavaScript for functionality.
+  This version features:
+  - A frameless, full-screen layout.
+  - Optimized performance by only rendering a small number of cards at a time.
+  - 100 dynamically generated cards with subtle random rotations.
+  - A smooth "go back" animation for the swiped card, sending it to the back of the deck.
+  - A cyclical, drag-in-any-direction interaction.
+  - The swipe logic is fully corrected to feel natural and intuitive.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards Stack Slider</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for the carousel effect */
+        body {
+            background-color: #1a202c; /* A dark gray background */
+        }
+        .carousel-container {
+            position: relative;
+            width: 52.5vw; /* Responsive width */
+            height: 26.25vw; /* Responsive height, maintains aspect ratio */
+        }
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            touch-action: none; /* Prevents all default touch actions on the track */
+        }
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: center;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out; /* Smooth transition for transform and opacity */
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen p-4 font-sans" style="overflow: hidden;">
+    <div class="carousel-container">
+        <div id="carousel-track" class="carousel-track cursor-grab">
+            <!-- Cards will be dynamically added here by JavaScript -->
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const track = document.getElementById('carousel-track');
+            
+            // --- Core Carousel Logic ---
+            const cardCount = 100; // The total number of cards in the conceptual deck
+            const maxCardsInDom = 5; // The number of cards to keep in the DOM for performance
+            
+            let currentSlideIndex = 0; // Index of the active card in the conceptual deck
+            let slides = []; // The array of slide elements currently in the DOM
+            let rotations = []; // Stores the random rotation for each of the 100 cards
+            const colors = ['2563eb', '10b981', 'f97316', '6366f1', 'f43f5e'];
+
+            // Initialize rotations for all 100 cards
+            for (let i = 0; i < cardCount; i++) {
+                rotations.push(Math.random() * 4 - 2); // Random rotation between -2 and 2 degrees
+            }
+
+            // Function to get the color for a specific card index
+            const getCardColor = (index) => {
+                return colors[index % colors.length];
+            };
+
+            // Renders and updates the cards in the DOM based on the current slide index
+            const renderCards = () => {
+                // Remove all existing slides from the DOM
+                track.innerHTML = '';
+                slides = [];
+
+                // Determine which cards to render
+                let startIndex = currentSlideIndex;
+                let cardsToRender = [];
+                for (let i = 0; i < maxCardsInDom; i++) {
+                    const cardIndex = (startIndex + i + cardCount) % cardCount;
+                    cardsToRender.push(cardIndex);
+                }
+
+                // Create and append the new slides
+                cardsToRender.forEach((cardIndex, domIndex) => {
+                    const newSlide = document.createElement('div');
+                    newSlide.classList.add('carousel-slide');
+                    newSlide.dataset.cardIndex = cardIndex; // Store the conceptual index
+                    newSlide.innerHTML = `<img src="https://placehold.co/800x450/${getCardColor(cardIndex)}/ffffff?text=Image+${cardIndex + 1}" alt="Image ${cardIndex + 1}" draggable="false">`;
+                    track.appendChild(newSlide);
+                    slides.push(newSlide);
+                });
+                
+                // Update the visual state of the new slides without animation
+                updateCarousel(false);
+            };
+
+            const updateCarousel = (animate = true) => {
+                slides.forEach((slide, domIndex) => {
+                    const cardIndex = parseInt(slide.dataset.cardIndex);
+                    
+                    let translateX = 0;
+                    let translateY = 0;
+                    let zIndex = 0;
+                    let opacity = 1;
+                    let rotate = 0;
+
+                    const distance = (cardIndex - currentSlideIndex + cardCount) % cardCount;
+
+                    if (distance === 0) {
+                        // The active card
+                        translateX = 0;
+                        translateY = 0;
+                        zIndex = 100;
+                        opacity = 1;
+                        rotate = rotations[cardIndex];
+                    } else {
+                        // All other slides, stacked behind
+                        const offset = 3.5 * distance; // Adjusted offset for a thinner stack
+                        translateX = -offset;
+                        translateY = offset;
+                        zIndex = 100 - distance;
+                        opacity = 1;
+                        rotate = rotations[cardIndex];
+                    }
+
+                    if (animate) {
+                        slide.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
+                    } else {
+                        slide.style.transition = 'none';
+                    }
+                    
+                    slide.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotateZ(${rotate}deg)`;
+                    slide.style.zIndex = zIndex;
+                    slide.style.opacity = opacity;
+                });
+            };
+
+            const advanceCard = () => {
+                currentSlideIndex = (currentSlideIndex + 1) % cardCount;
+                renderCards();
+            };
+
+            // Function to go back to the previous card in the conceptual deck
+            const goBackCard = () => {
+                currentSlideIndex = (currentSlideIndex - 1 + cardCount) % cardCount;
+                renderCards();
+            };
+            
+            // --- Drag and Swipe Logic ---
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let dragDistanceX = 0;
+            let dragDistanceY = 0;
+            const swipeThreshold = 50;
+
+            const dragCarousel = (dragDistanceX, dragDistanceY) => {
+                slides.forEach((slide, domIndex) => {
+                    const cardIndex = parseInt(slide.dataset.cardIndex);
+                    
+                    if (domIndex === 0) {
+                        // Active card moves with full drag
+                        slide.style.transition = 'none';
+                        slide.style.transform = `translateX(${dragDistanceX}px) translateY(${dragDistanceY}px) rotateZ(${rotations[cardIndex]}deg)`;
+                        slide.style.zIndex = 100;
+                    } else {
+                        // Back cards do NOT move, they stay in their stacked position
+                        slide.style.transition = 'none';
+                        const stackingOffset = 3.5;
+                        const distance = (cardIndex - currentSlideIndex + cardCount) % cardCount;
+                        const newOffsetX = -stackingOffset * distance;
+                        const newOffsetY = stackingOffset * distance;
+                        slide.style.transform = `translateX(${newOffsetX}px) translateY(${newOffsetY}px) rotateZ(${rotations[cardIndex]}deg)`;
+                        slide.style.zIndex = 100 - distance;
+                    }
+                });
+            };
+
+
+            track.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                isDragging = true;
+                track.classList.add('dragging');
+                track.setPointerCapture(e.pointerId);
+                startX = e.clientX;
+                startY = e.clientY;
+            });
+
+            track.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                dragDistanceX = e.clientX - startX;
+                dragDistanceY = e.clientY - startY;
+
+                dragCarousel(dragDistanceX, dragDistanceY);
+
+                const activeSlide = slides[0];
+                const dragMagnitude = Math.sqrt(dragDistanceX * dragDistanceX + dragDistanceY * dragDistanceY);
+                const fadeDistance = 200;
+                const newOpacity = Math.max(0, 1 - (dragMagnitude / fadeDistance));
+                activeSlide.style.opacity = newOpacity;
+            });
+
+            track.addEventListener('pointerup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                track.classList.remove('dragging');
+                
+                const dragMagnitude = Math.sqrt(dragDistanceX * dragDistanceX + dragDistanceY * dragDistanceY);
+
+                if (dragMagnitude > swipeThreshold) {
+                    const oldActiveSlide = slides[0];
+                    let nextIndex = (currentSlideIndex + 1) % cardCount;
+
+                    // Animate the swiped card to the back of the stack
+                    oldActiveSlide.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
+                    oldActiveSlide.style.zIndex = 100 - (maxCardsInDom + 1); // Send it to a lower z-index
+                    oldActiveSlide.style.opacity = 1;
+                    const offset = 3.5 * (maxCardsInDom + 1); 
+                    oldActiveSlide.style.transform = `translateX(${-offset}px) translateY(${offset}px) rotateZ(${rotations[parseInt(oldActiveSlide.dataset.cardIndex)]}deg)`;
+                    
+                    currentSlideIndex = nextIndex;
+                    
+                    // Render new cards after the animation is complete
+                    oldActiveSlide.addEventListener('transitionend', () => {
+                        renderCards();
+                    }, { once: true });
+                } else {
+                    // This is the key fix: when the swipe fails, we need to animate the ENTIRE deck back to its original state.
+                    updateCarousel(true);
+                }
+
+                dragDistanceX = 0;
+                dragDistanceY = 0;
+            });
+
+            // Initial setup
+            renderCards();
+            window.addEventListener('resize', updateCarousel);
+        });
+    </script>
+</body>
+</html>
