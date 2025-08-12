@@ -1,20 +1,9 @@
-<!--
-  This is a self-contained HTML file for a responsive 3D "Cards Stack Slider" carousel.
-  It uses Tailwind CSS for styling and JavaScript for functionality.
-  This version features:
-  - A frameless, full-screen layout.
-  - Optimized performance by only rendering a small number of cards at a time.
-  - 100 dynamically generated cards with subtle random rotations.
-  - A smooth "go back" animation for the swiped card, sending it to the back of the deck.
-  - A cyclical, drag-in-any-direction interaction.
-  - A compact, single-line timer with a new, sentimental text.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cards Stack Slider</title>
+    <title>26 Things I Love About You</title>
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,8 +11,6 @@
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom CSS for the carousel effect */
-
 
         @keyframes heartbeat {
         0%   { transform: scale(1); }
@@ -123,41 +110,53 @@
             
             // --- Core Carousel Logic ---
             
-            // Define your custom text messages here
+            // custom text
             const customTexts = [
                 "''26 Things I Love Ab You''",
                 "I love your pearly eyes",
                 "I love the way you smile",
                 "I love how you make me feel",
-                "I love the way you say ''you're miNeee'' :3",
+                "I love the way you say ''You're MiNeee'' :3",
                 "I love the way you call me ''Nee''",
-                "I love how u put my sorrows away",
+                "I love how you put my sorrows away",
                 "I love how you make me feel free",
-                "mygoddd I love your hairs by the wayyyy :3",
+                "mygoddd I love your hairs by the wayyyy 😭😭😭",
                 "I love your pretty little face",
-                "I love your warm, gentle embrace",
                 "I love the way you say ''Hello''",
+                "I love your warm, gentle embrace",
                 "I love your ''I love you'', whispered low",      
                 "I love the way you singg",
-                "I love your pretty earring",
                 "I love the way you say ''Eiii'' out loud",
-                "Being loved my you makes me sooo proud :3",
+                "I love your pretty earring",
+                "Being loved by you makes me feel sooo proud :3",
                 "I love your cute Vampire Teeth",
+                "I love how you type with extra e's",
                 "I listen to your songs on repeat",
-                "I love how u type with extra e's",
-                "God knows how much I crave for ur kiss :333",
-                "Thanks Jaan, for teaching me what is love",
-                "You and only you are my beloved",
+                "God knows how much I crave for your kiss :333",
+                "I love the way you make my heart skip beat",
+                "I love the wayy you become jealous sometimes",
+                "I love when you wear eyeliner er tip",
+                "Goshh I love how you pout, it's the cutest of signs",
+                "I love how pure of a soul you are",
+                "I love the fighter you are",
+                "I love how brave you are",
+                "I love you for who you are",
+                "I love you",
+                "I love youu",
+                "I love youuu",
+                "I love youuuu",
                 "I won't ever give up on you",
-                "Never never never",
+                "Never",
+                "Neverr",
+                "NEVERRR",
                 "I love you and I'll love you",
-                "Forever ever and everrrrr",
+                "Forever",
+                "Everr",
+                "ANDD EVERRR",
                 "Hehe :3",
-                // Add more custom messages here!
-                // The carousel will automatically adjust its card count.
             ];
 
-            const cardCount = customTexts.length; // Use the length of your custom array
+            const cardCount = customTexts.length;
             const maxCardsInDom = 5; 
             
             let currentSlideIndex = 0; 
@@ -165,7 +164,7 @@
             let rotations = []; 
             const colors = ['#fc6c85','#fb6f92', '#ff8fab','#fb6f92'];
 
-            // Initialize rotations for all 100 cards
+            // Initialize rotations
             for (let i = 0; i < cardCount; i++) {
                 rotations.push(Math.random() * 4 - 2); // Random rotation between -2 and 2 degrees
             }
