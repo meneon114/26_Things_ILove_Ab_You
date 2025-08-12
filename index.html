@@ -14,7 +14,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>26 Things I Love About You</title>
+    <title>Cards Stack Slider</title>
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,7 +131,7 @@
                 "I love how you make me feel",
                 "I love the way you say ''you're miNeee'' :3",
                 "I love the way you call me ''Nee''",
-                "I love how you put my sorrows away",
+                "I love how u put my sorrows away",
                 "I love how you make me feel free",
                 "mygoddd I love your hairs by the wayyyy :3",
                 "I love your pretty little face",
@@ -144,8 +144,8 @@
                 "Being loved my you makes me sooo proud :3",
                 "I love your cute Vampire Teeth",
                 "I listen to your songs on repeat",
-                "I love how you type with extra e's",
-                "God knows how much I crave for your kiss :333",
+                "I love how u type with extra e's",
+                "God knows how much I crave for ur kiss :333",
                 "Thanks Jaan, for teaching me what is love",
                 "You and only you are my beloved",
                 "I won't ever give up on you",
@@ -175,32 +175,27 @@
                 return colors[index % colors.length];
             };
 
-            // Dynamic text resizing function
-        const resizeText = (textEl) => {
-            // Resize text so it fills ~85% of card height and 90% of card width
-            const resizeText = (textEl) => {
-            const parent = textEl.parentElement;
-            let fontSize = 10; // start small
-            textEl.style.fontSize = `${fontSize}px`;
+       // Dynamic text resizing function
+const resizeText = (textEl) => {
+    const cardContainer = textEl.closest('.carousel-slide');
+    if (!cardContainer) return;
 
-            const maxHeight = parent.clientHeight * 0.9;
-            const maxWidth = parent.clientWidth * 0.9;
+    // Change this value to make the text smaller
+    let fontSize = cardContainer.clientWidth / 12; // This makes the text responsive
 
-            // Grow until we hit the limit
-            while (
-                textEl.scrollHeight <= maxHeight &&
-                textEl.scrollWidth <= maxWidth &&
-                fontSize < 100
-            ) {
-                fontSize += 10;
-                textEl.style.fontSize = `${fontSize}px`;
-            }
+    textEl.style.fontSize = `${fontSize}px`;
+    
+    const maxHeight = cardContainer.clientHeight * 0.9;
+    const maxWidth = cardContainer.clientWidth * 0.9;
 
-            // Step back one so it doesn't overflow
-            textEl.style.fontSize = `${fontSize - 1}px`;
-        };
+    // Adjust font size until it fits within the max height and width
+    while ((textEl.scrollHeight > maxHeight || textEl.scrollWidth > maxWidth) && fontSize > 10) {
+        fontSize -= 0.5;
+        textEl.style.fontSize = `${fontSize}px`;
+    }
+};
 
-            };
+            
 
             // Renders and updates the cards in the DOM based on the current slide index
             const renderCards = () => {
