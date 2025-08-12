@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>26 Things I Love About You</title>
-    <!-- Google Font -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN for styling -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
 
@@ -23,24 +23,24 @@
 
         .heartbeat {
         display: inline-block;            /* <-- important */
-        transform-origin: center center;  /* nicer scaling */
+        transform-origin: center center;  
         animation: heartbeat 1.25s ease-in-out infinite;
         }
 
 
         body {
-            background-color: #f4d0df; /* A baby pink background */
+            background-color: #f4d0df; 
         }
         .carousel-container {
             position: relative;
-            width: 52.5vw; /* Responsive width */
-            height: 26.25vw; /* Responsive height, maintains aspect ratio */
+            width: 52.5vw; 
+            height: 26.25vw; 
         }
         .carousel-track {
             position: relative;
             width: 100%;
             height: 100%;
-            touch-action: none; /* Prevents all default touch actions on the track */
+            touch-action: none; 
         }
         .carousel-slide {
             position: absolute;
@@ -50,7 +50,7 @@
             height: 100%;
             transform-origin: center;
             transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Soft drop shadow */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); 
         }
 
         .carousel-slide::before {
@@ -58,7 +58,7 @@
             position: absolute;
             inset: 0;
             border-radius: 1rem;
-            backdrop-filter: blur(8px); /* Glassy background effect */
+            backdrop-filter: blur(8px); 
             -webkit-backdrop-filter: blur(8px);
         }
 
@@ -92,11 +92,11 @@
 <body class="flex items-center justify-center min-h-screen p-4 font-sans flex-col">
     <div class="carousel-container">
         <div id="carousel-track" class="carousel-track">
-            <!-- Cards will be dynamically added here by JavaScript -->
+   
         </div>
     </div>
     
-    <!-- Timer Display -->
+
     <div class="mt-8 text-center cute-font text-lg">
         <span class="text-pink-500">Thank you loveee, for loving me for </span>
         <span id="timer" class="text-pink-500"></span>
@@ -107,9 +107,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const track = document.getElementById('carousel-track');
             const timerDisplay = document.getElementById('timer');
-            
-            // --- Core Carousel Logic ---
-            
+                        
             // custom text
             const customTexts = [
                 "''26 Things I Love Ab You''",
@@ -166,17 +164,15 @@
             let rotations = []; 
             const colors = ['#fc6c85','#fb6f92', '#ff8fab','#fb6f92'];
 
-            // Initialize rotations
+
             for (let i = 0; i < cardCount; i++) {
-                rotations.push(Math.random() * 4 - 2); // Random rotation between -2 and 2 degrees
+                rotations.push(Math.random() * 4 - 2); 
             }
 
-            // Function to get the color for a specific card index
             const getCardColor = (index) => {
                 return colors[index % colors.length];
             };
 
-       // Dynamic text resizing function
 const resizeText = (textEl) => {
     const cardContainer = textEl.closest('.carousel-slide');
     if (!cardContainer) return;
@@ -189,7 +185,6 @@ const resizeText = (textEl) => {
     const maxHeight = cardContainer.clientHeight * 0.9;
     const maxWidth = cardContainer.clientWidth * 0.9;
 
-    // Adjust font size until it fits within the max height and width
     while ((textEl.scrollHeight > maxHeight || textEl.scrollWidth > maxWidth) && fontSize > 10) {
         fontSize -= 0.5;
         textEl.style.fontSize = `${fontSize}px`;
@@ -198,7 +193,6 @@ const resizeText = (textEl) => {
 
             
 
-            // Renders and updates the cards in the DOM based on the current slide index
             const renderCards = () => {
                 track.innerHTML = '';
                 slides = [];
@@ -219,7 +213,7 @@ const resizeText = (textEl) => {
                     newSlide.dataset.cardIndex = cardIndex;
                     const cardText = customTexts[cardIndex];
                     const cardTextHtml = cardText.replace(/\n/g, '<br>');
-                    newSlide.style.backgroundColor = getCardColor(cardIndex); // Set background color
+                    newSlide.style.backgroundColor = getCardColor(cardIndex); 
                     newSlide.innerHTML = `<div class="card-text cute-font">${cardTextHtml}</div>`;
                     track.appendChild(newSlide);
                     slides.push(newSlide);
@@ -385,6 +379,6 @@ const resizeText = (textEl) => {
             setInterval(updateTimer, 1000);
             window.addEventListener('resize', updateCarousel);
         });
-    </script>
+    </script> 
 </body>
 </html>
