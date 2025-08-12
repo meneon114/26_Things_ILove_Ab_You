@@ -7,7 +7,7 @@
   - 100 dynamically generated cards with subtle random rotations.
   - A smooth "go back" animation for the swiped card, sending it to the back of the deck.
   - A cyclical, drag-in-any-direction interaction.
-  - The swipe logic is fully corrected to feel natural and intuitive.
+  - A compact, single-line timer with a new, sentimental text.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -15,12 +15,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cards Stack Slider</title>
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom CSS for the carousel effect */
+
+
+        @keyframes heartbeat {
+        0%   { transform: scale(1); }
+        14%  { transform: scale(1.3); }
+        28%  { transform: scale(1); }
+        42%  { transform: scale(1.2); }
+        70%  { transform: scale(1); }
+        100% { transform: scale(1); }
+        }
+
+        .heartbeat {
+        display: inline-block;            /* <-- important */
+        transform-origin: center center;  /* nicer scaling */
+        animation: heartbeat 1.25s ease-in-out infinite;
+        }
+
+
         body {
-            background-color: #1a202c; /* A dark gray background */
+            background-color: #f4d0df; /* A baby pink background */
         }
         .carousel-container {
             position: relative;
@@ -40,35 +62,85 @@
             width: 100%;
             height: 100%;
             transform-origin: center;
-            transition: transform 0.5s ease-out, opacity 0.5s ease-out; /* Smooth transition for transform and opacity */
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Soft drop shadow */
         }
-        .carousel-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+
+        .carousel-slide::before {
+            content: "";
+            position: absolute;
+            inset: 0;
             border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(8px); /* Glassy background effect */
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .cute-font {
+            font-family: 'Patrick Hand', cursive;
+        }
+        .card-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #ffffff;
+            font-weight: regular;
+            line-height: 1.2;
+            word-wrap: break-word;
+            padding: 1rem;
+            box-sizing: border-box;
+            background-color: rgba(0,0,0,0.0);
+            border-radius: 1rem;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen p-4 font-sans" style="overflow: hidden;">
+<body class="flex items-center justify-center min-h-screen p-4 font-sans flex-col">
     <div class="carousel-container">
-        <div id="carousel-track" class="carousel-track cursor-grab">
+        <div id="carousel-track" class="carousel-track">
             <!-- Cards will be dynamically added here by JavaScript -->
         </div>
     </div>
+    
+    <!-- Timer Display -->
+    <div class="mt-8 text-center cute-font text-lg">
+        <span class="text-pink-500">Thank you loveee, for loving me for </span>
+        <span id="timer" class="text-pink-500"></span>
+        <span class="heartbeat text-pink-500"> &lt;3 </span>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const track = document.getElementById('carousel-track');
+            const timerDisplay = document.getElementById('timer');
             
             // --- Core Carousel Logic ---
-            const cardCount = 100; // The total number of cards in the conceptual deck
-            const maxCardsInDom = 5; // The number of cards to keep in the DOM for performance
             
-            let currentSlideIndex = 0; // Index of the active card in the conceptual deck
-            let slides = []; // The array of slide elements currently in the DOM
-            let rotations = []; // Stores the random rotation for each of the 100 cards
-            const colors = ['2563eb', '10b981', 'f97316', '6366f1', 'f43f5e'];
+            // Define your custom text messages here
+            const customTexts = [
+                "I love our late-night talks.",
+                "Thank you for always making me laugh.",
+                "Remember that time we got lost?",
+                "You are my favorite person.",
+                "Every day with you is an adventure.",
+                // Add more custom messages here!
+                // The carousel will automatically adjust its card count.
+            ];
+
+            const cardCount = customTexts.length; // Use the length of your custom array
+            const maxCardsInDom = 5; 
+            
+            let currentSlideIndex = 0; 
+            let slides = []; 
+            let rotations = []; 
+            const colors = ['#fc6c85','#fb6f92', '#ff8fab','#fb6f92'];
 
             // Initialize rotations for all 100 cards
             for (let i = 0; i < cardCount; i++) {
@@ -80,13 +152,38 @@
                 return colors[index % colors.length];
             };
 
+            // Dynamic text resizing function
+        const resizeText = (textEl) => {
+            // Resize text so it fills ~85% of card height and 90% of card width
+            const resizeText = (textEl) => {
+            const parent = textEl.parentElement;
+            let fontSize = 10; // start small
+            textEl.style.fontSize = `${fontSize}px`;
+
+            const maxHeight = parent.clientHeight * 0.9;
+            const maxWidth = parent.clientWidth * 0.9;
+
+            // Grow until we hit the limit
+            while (
+                textEl.scrollHeight <= maxHeight &&
+                textEl.scrollWidth <= maxWidth &&
+                fontSize < 100
+            ) {
+                fontSize += 10;
+                textEl.style.fontSize = `${fontSize}px`;
+            }
+
+            // Step back one so it doesn't overflow
+            textEl.style.fontSize = `${fontSize - 1}px`;
+        };
+
+            };
+
             // Renders and updates the cards in the DOM based on the current slide index
             const renderCards = () => {
-                // Remove all existing slides from the DOM
                 track.innerHTML = '';
                 slides = [];
 
-                // Determine which cards to render
                 let startIndex = currentSlideIndex;
                 let cardsToRender = [];
                 for (let i = 0; i < maxCardsInDom; i++) {
@@ -94,20 +191,24 @@
                     cardsToRender.push(cardIndex);
                 }
 
-                // Create and append the new slides
                 cardsToRender.forEach((cardIndex, domIndex) => {
                     const newSlide = document.createElement('div');
                     newSlide.classList.add('carousel-slide');
-                    newSlide.dataset.cardIndex = cardIndex; // Store the conceptual index
-                    newSlide.innerHTML = `<img src="https://placehold.co/800x450/${getCardColor(cardIndex)}/ffffff?text=Image+${cardIndex + 1}" alt="Image ${cardIndex + 1}" draggable="false">`;
+                    if (domIndex === 0) {
+                        newSlide.classList.add('active');
+                    }
+                    newSlide.dataset.cardIndex = cardIndex;
+                    const cardText = customTexts[cardIndex];
+                    const cardTextHtml = cardText.replace(/\n/g, '<br>');
+                    newSlide.style.backgroundColor = getCardColor(cardIndex); // Set background color
+                    newSlide.innerHTML = `<div class="card-text cute-font">${cardTextHtml}</div>`;
                     track.appendChild(newSlide);
                     slides.push(newSlide);
                 });
                 
-                // Update the visual state of the new slides without animation
                 updateCarousel(false);
             };
-
+            
             const updateCarousel = (animate = true) => {
                 slides.forEach((slide, domIndex) => {
                     const cardIndex = parseInt(slide.dataset.cardIndex);
@@ -121,20 +222,20 @@
                     const distance = (cardIndex - currentSlideIndex + cardCount) % cardCount;
 
                     if (distance === 0) {
-                        // The active card
                         translateX = 0;
                         translateY = 0;
                         zIndex = 100;
                         opacity = 1;
                         rotate = rotations[cardIndex];
+                        slide.classList.add('active');
                     } else {
-                        // All other slides, stacked behind
-                        const offset = 3.5 * distance; // Adjusted offset for a thinner stack
+                        const offset = 1.5 * distance;
                         translateX = -offset;
                         translateY = offset;
                         zIndex = 100 - distance;
                         opacity = 1;
                         rotate = rotations[cardIndex];
+                        slide.classList.remove('active');
                     }
 
                     if (animate) {
@@ -146,6 +247,11 @@
                     slide.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotateZ(${rotate}deg)`;
                     slide.style.zIndex = zIndex;
                     slide.style.opacity = opacity;
+
+                    const textElement = slide.querySelector('.card-text');
+                    if (textElement) {
+                        resizeText(textElement);
+                    }
                 });
             };
 
@@ -154,13 +260,11 @@
                 renderCards();
             };
 
-            // Function to go back to the previous card in the conceptual deck
             const goBackCard = () => {
                 currentSlideIndex = (currentSlideIndex - 1 + cardCount) % cardCount;
                 renderCards();
             };
             
-            // --- Drag and Swipe Logic ---
             let isDragging = false;
             let startX = 0;
             let startY = 0;
@@ -173,14 +277,12 @@
                     const cardIndex = parseInt(slide.dataset.cardIndex);
                     
                     if (domIndex === 0) {
-                        // Active card moves with full drag
                         slide.style.transition = 'none';
                         slide.style.transform = `translateX(${dragDistanceX}px) translateY(${dragDistanceY}px) rotateZ(${rotations[cardIndex]}deg)`;
                         slide.style.zIndex = 100;
                     } else {
-                        // Back cards do NOT move, they stay in their stacked position
                         slide.style.transition = 'none';
-                        const stackingOffset = 3.5;
+                        const stackingOffset = 1.5;
                         const distance = (cardIndex - currentSlideIndex + cardCount) % cardCount;
                         const newOffsetX = -stackingOffset * distance;
                         const newOffsetY = stackingOffset * distance;
@@ -226,21 +328,18 @@
                     const oldActiveSlide = slides[0];
                     let nextIndex = (currentSlideIndex + 1) % cardCount;
 
-                    // Animate the swiped card to the back of the stack
                     oldActiveSlide.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
-                    oldActiveSlide.style.zIndex = 100 - (maxCardsInDom + 1); // Send it to a lower z-index
+                    oldActiveSlide.style.zIndex = 100 - (maxCardsInDom + 1);
                     oldActiveSlide.style.opacity = 1;
-                    const offset = 3.5 * (maxCardsInDom + 1); 
+                    const offset = 1.5 * (maxCardsInDom + 1);
                     oldActiveSlide.style.transform = `translateX(${-offset}px) translateY(${offset}px) rotateZ(${rotations[parseInt(oldActiveSlide.dataset.cardIndex)]}deg)`;
                     
                     currentSlideIndex = nextIndex;
                     
-                    // Render new cards after the animation is complete
                     oldActiveSlide.addEventListener('transitionend', () => {
                         renderCards();
                     }, { once: true });
                 } else {
-                    // This is the key fix: when the swipe fails, we need to animate the ENTIRE deck back to its original state.
                     updateCarousel(true);
                 }
 
@@ -248,8 +347,23 @@
                 dragDistanceY = 0;
             });
 
-            // Initial setup
+            const startDate = new Date('2025-05-14T22:49:00');
+
+            function updateTimer() {
+                const now = new Date();
+                const diff = now.getTime() - startDate.getTime();
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                timerDisplay.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+
             renderCards();
+            updateTimer();
+            setInterval(updateTimer, 1000);
             window.addEventListener('resize', updateCarousel);
         });
     </script>
